@@ -13,7 +13,7 @@ export async function fetchFromZobJobs(querySize?: number): Promise<JobType[]> {
         location: job.location,
       };
     });
-    console.log(jobs);
+
     return jobs; // Assuming response.data is an array of JobType
   } catch (e) {
     console.log("Error fetching from ZobJobs", e);

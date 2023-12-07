@@ -1,40 +1,78 @@
-const Discord = require("discord.js");
-const client = new Discord.Client();
+const { Client, GatewayIntentBits } = require("discord.js");
+const client = new Client({
+  intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+});
+import { formattedDate } from "./utils/format";
 const axios = require("axios");
+require("dotenv").config();
 import { JobType } from "./types";
+const cron = require("node-cron");
+const { EmbedBuilder } = require("discord.js");
+
+async function fetchJobOffers(): Promise<JobType[] | []> {
+  try {
+    // Call the API with the required headers
+    const response = await axios.get("http://localhost:3000/", {
+      headers: {
+        key: process.env.RESME_API_KEY,
+      },
+    });
+
+    // Assuming the API returns an array of JobType
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching job offers:", error);
+    return [];
+  }
+}
+
+function formatEmbed(job: JobType) {
+  if (!job) {
+    return "";
+  }
+  // Send formatted message to channel
+  const jobEmbed = new EmbedBuilder()
+    .setColor("#0099ff") // Set the color of the embed
+    .setTitle(job.title) // Set the title of the embed
+    .setURL(job.link) // Set the URL to the job posting
+    .setAuthor({ name: job.companyName }) // Set the author of the embed
+    //.setDescription(job.description) // Set the description of the embed
+    .addFields(
+      { name: "Location", value: job.location },
+      { name: "\u200B", value: "\u200B", inline: true },
+      { name: "\u200B", value: "\u200B", inline: true },
+      {
+        name: "Apply By-",
+        value: formattedDate(job.endDate),
+      },
+      { name: "\u200B", value: "\u200B", inline: true },
+      { name: "\u200B", value: "\u200B", inline: true }
+      // You can add more fields if you have more information
+    )
+    .setTimestamp();
+  return jobEmbed;
+}
+
+client.login(process.env.DISCORD_TOKEN);
+
+async function sendJobMessage() {
+  try {
+    const channel = await client.channels.fetch("1174806019067613324");
+
+    const jobOffers = await fetchJobOffers();
+    jobOffers.forEach((offer) => {
+      channel.send({ embeds: [formatEmbed(offer)] });
+    });
+
+    console.log("message sent");
+  } catch (e) {
+    console.log("There is an error with sending job messages", e);
+  }
+}
+
+cron.schedule("0 9 * * *", sendJobMessage);
 
 client.once("ready", () => {
   console.log("Bot is online!");
-});
-
-client.on("message", async (message: any) => {
-  if (message.content === "!jobs") {
-    const jobOffers = await fetchJobOffers();
-    jobOffers.forEach((offer) => {
-      message.channel.send(formatJobOffer(offer));
-    });
-  }
-});
-
-async function fetchJobOffers(): Promise<JobType[] | []> {
-  // Fetch and return job offers
-  // Example: return axios.get('API_URL').then(response => response.data);
-  return [];
-}
-
-function formatJobOffer(offer: any) {
-  // Format the job offer into a string or embed
-}
-
-client.login("YOUR_BOT_TOKEN");
-
-const cron = require("node-cron");
-
-cron.schedule("0 9 * * *", async () => {
-  // Runs every day at 9:00 AM
-  const channel = client.channels.cache.get("YOUR_CHANNEL_ID");
-  const jobOffers = await fetchJobOffers();
-  jobOffers.forEach((offer) => {
-    channel.send(formatJobOffer(offer));
-  });
+  sendJobMessage();
 });

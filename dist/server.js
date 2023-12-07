@@ -13,6 +13,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const externalSources_1 = require("./externalSources");
 require("dotenv").config();
 const app = (0, express_1.default)();
 const port = 3000;
@@ -20,7 +21,6 @@ const MY_API_KEY = process.env.RESME_API_KEY;
 // Middleware to check the API key
 function checkApiKey(req, res, next) {
     const apiKey = req.headers["key"];
-    console.log("INSIDE MIDDLE WARE", MY_API_KEY);
     if (apiKey === MY_API_KEY) {
         next(); // If the key is valid, proceed to the route handler
     }
@@ -31,10 +31,8 @@ function checkApiKey(req, res, next) {
 app.use(express_1.default.json()); // For parsing application/json
 app.get("/", checkApiKey, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     try {
-        // const data = await fetchFromZobJobs();
-        console.log("received");
-        // res.status(200).json(data);
-        res.status(200).json({ message: "rcvd" });
+        const data = yield (0, externalSources_1.fetchFromZobJobs)();
+        res.status(200).json(data);
     }
     catch (error) {
         console.log(error);

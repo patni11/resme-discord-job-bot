@@ -4,7 +4,7 @@ export type JobType =
       title: string;
       companyName?: string;
       positionType?: string; //example intern, full time, etc
-      endDate?: Date;
+      endDate?: string;
       description?: string;
       location?: string;
     }
