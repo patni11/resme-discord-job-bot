@@ -25,7 +25,6 @@ function fetchFromZobJobs(querySize) {
                     location: job.location,
                 };
             });
-            console.log(jobs);
             return jobs; // Assuming response.data is an array of JobType
         }
         catch (e) {

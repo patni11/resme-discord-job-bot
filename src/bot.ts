@@ -61,6 +61,7 @@ async function sendJobMessage() {
 
     const jobOffers = await fetchJobOffers();
     jobOffers.forEach((offer) => {
+      const formattedOffer = formatEmbed(offer)
       channel.send({ embeds: [formatEmbed(offer)] });
     });
 
@@ -70,9 +71,10 @@ async function sendJobMessage() {
   }
 }
 
-cron.schedule("0 9 * * *", sendJobMessage);
+cron.schedule("50 1 * * *", sendJobMessage, {
+  timezone: "Asia/Kolkata"
+});
 
 client.once("ready", () => {
   console.log("Bot is online!");
-  sendJobMessage();
 });
