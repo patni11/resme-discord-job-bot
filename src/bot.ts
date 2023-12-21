@@ -61,12 +61,10 @@ async function sendJobMessage() {
     const channel = await client.channels.fetch("1174806019067613324");
 
     const jobOffers = await fetchJobOffers();
-    // jobOffers.forEach((offer) => {
-    //   const formattedOffer = formatEmbed(offer);
-    //   channel.send({ embeds: [formatEmbed(offer)] });
-    // });
-
-    channel.send({ embeds: [formatEmbed(jobOffers[0])] });
+    jobOffers.forEach((offer) => {
+      const formattedOffer = formatEmbed(offer);
+      channel.send({ embeds: [formattedOffer] });
+    });
 
     console.log("message sent");
   } catch (e) {
@@ -84,21 +82,34 @@ export async function sendDiscordFeedback({
   message: string;
 }) {
   try {
-    const channel = await client.channels.fetch(discordChannel);
-    console.log("Bot is online!");
-    console.log("Process env", process.env.RESME_API_KEY);
+    client.once("ready", async () => {
+      console.log("Bot is online!");
+      console.log("Process env", process.env.RESME_API_KEY);
+      const channel = await client.channels.fetch(discordChannel);
 
-    if (!channel) {
-      console.log("Could not connect to channel");
-      throw new Error(`Could not connect to channel: ${channel}`);
-    }
-    const formattedOffer = new EmbedBuilder()
-      .setColor("#0099ff") // Set the color of the embed
-      .setTitle(buttonState) // Set the title of the embed
-      .addFields({ name: "Issue", value: message, inline: true })
-      .setTimestamp();
+      const formattedOffer = new EmbedBuilder()
+        .setColor("#0099ff") // Set the color of the embed
+        .setTitle(buttonState) // Set the title of the embed
+        .addFields({ name: "Issue", value: message, inline: true })
+        .setTimestamp();
 
-    await channel.send({ embeds: [formattedOffer] });
+      await channel.send({ embeds: [formattedOffer] });
+    });
+    // const channel = await client.channels.fetch(discordChannel);
+    // console.log("Bot is online!");
+    // console.log("Process env", process.env.RESME_API_KEY);
+
+    // if (!channel) {
+    //   console.log("Could not connect to channel");
+    //   throw new Error(`Could not connect to channel: ${channel}`);
+    // }
+    // const formattedOffer = new EmbedBuilder()
+    //   .setColor("#0099ff") // Set the color of the embed
+    //   .setTitle(buttonState) // Set the title of the embed
+    //   .addFields({ name: "Issue", value: message, inline: true })
+    //   .setTimestamp();
+
+    // await channel.send({ embeds: [formattedOffer] });
     return { success: true, message: "Feedback Sent" };
   } catch (error: any) {
     console.log("Failed to send feedback to discord", error);
@@ -106,7 +117,7 @@ export async function sendDiscordFeedback({
   }
 }
 
-cron.schedule("28 18 * * *", sendJobMessage, {
+cron.schedule("57 00 * * *", sendJobMessage, {
   timezone: "Asia/Kolkata",
 });
 

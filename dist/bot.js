@@ -66,7 +66,7 @@ function sendJobMessage() {
             const jobOffers = yield fetchJobOffers();
             jobOffers.forEach((offer) => {
                 const formattedOffer = formatEmbed(offer);
-                channel.send({ embeds: [formatEmbed(offer)] });
+                channel.send({ embeds: [formattedOffer] });
             });
             console.log("message sent");
         }
@@ -78,17 +78,30 @@ function sendJobMessage() {
 function sendDiscordFeedback({ discordChannel, buttonState, message, }) {
     return __awaiter(this, void 0, void 0, function* () {
         try {
-            const channel = yield client.channels.fetch(discordChannel);
-            if (!channel) {
-                console.log("Could not connect to channel");
-                throw new Error(`Could not connect to channel: ${channel}`);
-            }
-            const formattedOffer = new EmbedBuilder()
-                .setColor("#0099ff") // Set the color of the embed
-                .setTitle(buttonState) // Set the title of the embed
-                .addFields({ name: "Issue", value: message, inline: true })
-                .setTimestamp();
-            yield channel.send({ embeds: [formattedOffer] });
+            client.once("ready", () => __awaiter(this, void 0, void 0, function* () {
+                console.log("Bot is online!");
+                console.log("Process env", process.env.RESME_API_KEY);
+                const channel = yield client.channels.fetch(discordChannel);
+                const formattedOffer = new EmbedBuilder()
+                    .setColor("#0099ff") // Set the color of the embed
+                    .setTitle(buttonState) // Set the title of the embed
+                    .addFields({ name: "Issue", value: message, inline: true })
+                    .setTimestamp();
+                yield channel.send({ embeds: [formattedOffer] });
+            }));
+            // const channel = await client.channels.fetch(discordChannel);
+            // console.log("Bot is online!");
+            // console.log("Process env", process.env.RESME_API_KEY);
+            // if (!channel) {
+            //   console.log("Could not connect to channel");
+            //   throw new Error(`Could not connect to channel: ${channel}`);
+            // }
+            // const formattedOffer = new EmbedBuilder()
+            //   .setColor("#0099ff") // Set the color of the embed
+            //   .setTitle(buttonState) // Set the title of the embed
+            //   .addFields({ name: "Issue", value: message, inline: true })
+            //   .setTimestamp();
+            // await channel.send({ embeds: [formattedOffer] });
             return { success: true, message: "Feedback Sent" };
         }
         catch (error) {
