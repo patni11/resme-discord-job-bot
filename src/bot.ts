@@ -12,7 +12,7 @@ const { EmbedBuilder } = require("discord.js");
 async function fetchJobOffers(): Promise<JobType[] | []> {
   try {
     // Call the API with the required headers
-    const response = await axios.get("http://localhost:3000/", {
+    const response = await axios.get("/fetchJob", {
       headers: {
         key: process.env.RESME_API_KEY,
       },
@@ -38,12 +38,13 @@ function formatEmbed(job: JobType) {
     .setAuthor({ name: job.companyName }) // Set the author of the embed
     //.setDescription(job.description) // Set the description of the embed
     .addFields(
-      { name: "Location", value: job.location },
+      { name: "Location", value: job.location, inline: true },
       { name: "\u200B", value: "\u200B", inline: true },
       { name: "\u200B", value: "\u200B", inline: true },
       {
         name: "Apply By-",
         value: formattedDate(job.endDate),
+        inline: true,
       },
       { name: "\u200B", value: "\u200B", inline: true },
       { name: "\u200B", value: "\u200B", inline: true }
@@ -61,7 +62,7 @@ async function sendJobMessage() {
 
     const jobOffers = await fetchJobOffers();
     jobOffers.forEach((offer) => {
-      const formattedOffer = formatEmbed(offer)
+      const formattedOffer = formatEmbed(offer);
       channel.send({ embeds: [formatEmbed(offer)] });
     });
 
@@ -71,8 +72,38 @@ async function sendJobMessage() {
   }
 }
 
-cron.schedule("50 1 * * *", sendJobMessage, {
-  timezone: "Asia/Kolkata"
+export async function sendDiscordFeedback({
+  discordChannel,
+  buttonState,
+  message,
+}: {
+  discordChannel: string;
+  buttonState: string;
+  message: string;
+}) {
+  try {
+    const channel = await client.channels.fetch(discordChannel);
+
+    if (!channel) {
+      console.log("Could not connect to channel");
+      throw new Error(`Could not connect to channel: ${channel}`);
+    }
+    const formattedOffer = new EmbedBuilder()
+      .setColor("#0099ff") // Set the color of the embed
+      .setTitle(buttonState) // Set the title of the embed
+      .addFields({ name: "Issue", value: message, inline: true })
+      .setTimestamp();
+
+    await channel.send({ embeds: [formattedOffer] });
+    return { success: true, message: "Feedback Sent" };
+  } catch (error: any) {
+    console.log("Failed to send feedback to discord", error);
+    throw new Error(`Failed to send feedback to discord: ${error.message}`);
+  }
+}
+
+cron.schedule("57 00 * * *", sendJobMessage, {
+  timezone: "Asia/Kolkata",
 });
 
 client.once("ready", () => {
