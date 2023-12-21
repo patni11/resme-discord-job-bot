@@ -82,9 +82,11 @@ export async function sendDiscordFeedback({
   message: string;
 }) {
   try {
-    client.once("ready", async () => {
+    await client.once("ready", async () => {
       console.log("Bot is online!");
       console.log("Process env", process.env.RESME_API_KEY);
+
+      console.log("Body", discordChannel, buttonState, message);
       const channel = await client.channels.fetch(discordChannel);
 
       const formattedOffer = new EmbedBuilder()
@@ -94,6 +96,7 @@ export async function sendDiscordFeedback({
         .setTimestamp();
 
       await channel.send({ embeds: [formattedOffer] });
+      return { success: true, message: "Feedback Sent" };
     });
     // const channel = await client.channels.fetch(discordChannel);
     // console.log("Bot is online!");
@@ -110,7 +113,6 @@ export async function sendDiscordFeedback({
     //   .setTimestamp();
 
     // await channel.send({ embeds: [formattedOffer] });
-    return { success: true, message: "Feedback Sent" };
   } catch (error: any) {
     console.log("Failed to send feedback to discord", error);
     throw new Error(`Failed to send feedback to discord: ${error.message}`);
