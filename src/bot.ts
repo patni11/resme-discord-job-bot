@@ -83,6 +83,8 @@ export async function sendDiscordFeedback({
 }) {
   try {
     const channel = await client.channels.fetch(discordChannel);
+    console.log("Bot is online!");
+    console.log("Process env", process.env.RESME_API_KEY);
 
     if (!channel) {
       console.log("Could not connect to channel");
