@@ -61,10 +61,12 @@ async function sendJobMessage() {
     const channel = await client.channels.fetch("1174806019067613324");
 
     const jobOffers = await fetchJobOffers();
-    jobOffers.forEach((offer) => {
-      const formattedOffer = formatEmbed(offer);
-      channel.send({ embeds: [formatEmbed(offer)] });
-    });
+    // jobOffers.forEach((offer) => {
+    //   const formattedOffer = formatEmbed(offer);
+    //   channel.send({ embeds: [formatEmbed(offer)] });
+    // });
+
+    channel.send({ embeds: [formatEmbed(jobOffers[0])] });
 
     console.log("message sent");
   } catch (e) {
@@ -104,7 +106,7 @@ export async function sendDiscordFeedback({
   }
 }
 
-cron.schedule("57 00 * * *", sendJobMessage, {
+cron.schedule("28 18 * * *", sendJobMessage, {
   timezone: "Asia/Kolkata",
 });
 
