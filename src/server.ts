@@ -32,7 +32,7 @@ app.get("/fetchJob", checkApiKey, async (req: Request, res: Response) => {
   }
 });
 
-app.post("/feedback", async (req: Request, res: Response) => {
+app.post("/feedback", checkApiKey, async (req: Request, res: Response) => {
   try {
     // req.body contains the parsed body of the request, no need to await it
     const body = req.body;
