@@ -46,7 +46,6 @@ app.post("/feedback", (req, res) => __awaiter(void 0, void 0, void 0, function* 
     try {
         // req.body contains the parsed body of the request, no need to await it
         const body = req.body;
-        console.log("Body", body);
         const { discordChannel, buttonState, message } = body;
         // Ensure sendDiscordFeedback is an async function
         const response = yield (0, bot_1.sendDiscordFeedback)({

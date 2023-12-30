@@ -82,37 +82,23 @@ export async function sendDiscordFeedback({
   message: string;
 }) {
   try {
-    await client.once("ready", async () => {
-      console.log("Bot is online!");
-      console.log("Process env", process.env.RESME_API_KEY);
+    const channel = await client.channels.fetch(discordChannel);
+    console.log("Bot is online!");
+    console.log("Process env", process.env.RESME_API_KEY);
+    console.log(discordChannel, buttonState, message);
 
-      console.log("Body", discordChannel, buttonState, message);
-      const channel = await client.channels.fetch(discordChannel);
+    if (!channel) {
+      console.log("Could not connect to channel");
+      throw new Error(`Could not connect to channel: ${channel}`);
+    }
+    const formattedOffer = new EmbedBuilder()
+      .setColor("#0099ff") // Set the color of the embed
+      .setTitle(buttonState) // Set the title of the embed
+      .addFields({ name: "Issue", value: message, inline: true })
+      .setTimestamp();
 
-      const formattedOffer = new EmbedBuilder()
-        .setColor("#0099ff") // Set the color of the embed
-        .setTitle(buttonState) // Set the title of the embed
-        .addFields({ name: "Issue", value: message, inline: true })
-        .setTimestamp();
-
-      await channel.send({ embeds: [formattedOffer] });
-      return { success: true, message: "Feedback Sent" };
-    });
-    // const channel = await client.channels.fetch(discordChannel);
-    // console.log("Bot is online!");
-    // console.log("Process env", process.env.RESME_API_KEY);
-
-    // if (!channel) {
-    //   console.log("Could not connect to channel");
-    //   throw new Error(`Could not connect to channel: ${channel}`);
-    // }
-    // const formattedOffer = new EmbedBuilder()
-    //   .setColor("#0099ff") // Set the color of the embed
-    //   .setTitle(buttonState) // Set the title of the embed
-    //   .addFields({ name: "Issue", value: message, inline: true })
-    //   .setTimestamp();
-
-    // await channel.send({ embeds: [formattedOffer] });
+    await channel.send({ embeds: [formattedOffer] });
+    return { success: true, message: "Feedback Sent" };
   } catch (error: any) {
     console.log("Failed to send feedback to discord", error);
     throw new Error(`Failed to send feedback to discord: ${error.message}`);
