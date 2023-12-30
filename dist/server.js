@@ -18,7 +18,7 @@ const bot_1 = require("./bot");
 const cors = require("cors");
 require("dotenv").config();
 const app = (0, express_1.default)();
-const port = 3001;
+const port = 80;
 const MY_API_KEY = process.env.RESME_API_KEY;
 // Middleware to check the API key
 function checkApiKey(req, res, next) {

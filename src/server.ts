@@ -6,7 +6,7 @@ const cors = require("cors");
 require("dotenv").config();
 
 const app = express();
-const port = 3001;
+const port = 80;
 
 const MY_API_KEY = process.env.RESME_API_KEY;
 
